@@ -1,0 +1,343 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# FINAL GROUP PROJECT
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+
+omega_2000 = read.csv("OMEGA_2000.csv")
+
+```
+
+
+
+```{r}
+
+cardio = read.csv("cardio.csv")
+
+ortho = read.csv("ortho.csv")
+
+```
+
+
+# Profitability of Cardio Vs Ortho
+```{r}
+
+cardio_profit = read.csv("profit_cardio.csv")
+
+ortho_profit = read.csv("profit_ortho.csv")
+
+cardio_profit%>%
+  ggplot(aes(x = profit, y = PAT_NO ))+
+  geom_point(size=.5, position=position_jitter(width = .45))+
+  labs(x = "Profitability of Cardio in Dollars ", y = " Patients", title ="Profitability of Omega for Cardio Patients") +
+  theme_bw()
+
+
+ortho_profit%>%
+  ggplot(aes(x = profit, y = PAT_NO ))+
+  geom_point(size=.5, position=position_jitter(width = .45))+
+  labs(x = "Profitability of  Ortho in Dollars ", y = "Patients", title ="Profitability of Omega for Ortho Patients") +
+  theme_bw()
+
+```
+
+# LOS OUTLIERS 
+```{r}
+
+#LOS outlier 4
+
+#LOS boxplot for Cardio
+
+LOS_Z = (cardio$LOS - mean(cardio$LOS,na.rm = TRUE))/sd(cardio$LOS)
+
+LOS_boxplot_cardio = 
+  ggplot(cardio, aes(y = LOS_Z)) + geom_boxplot()+
+  theme_bw()+
+  labs(x = "", y = "", title = "")
+
+LOS_boxplot_cardio
+
+#LOS Boxplot for Ortho 
+
+LOS_Z_ortho = (ortho$LOS - mean(ortho$LOS,na.rm = TRUE))/sd(ortho$LOS)
+
+LOS_boxplot_ortho = 
+  ggplot(ortho, aes(y = LOS_Z_ortho)) + geom_boxplot()+
+  theme_bw()
+
+LOS_boxplot_ortho
+
+```
+
+```{r}
+
+
+```
+
+#ELECTIVE VS EMERGENT CARE 
+```{r}
+
+#elective vs emergent charge  for cardio 
+
+cardio_elective_charge <- subset(cardio, cardio$ADM_TYPE == "ELECTIVE")
+cardio_elective_mean = mean(cardio_elective_charge$TOT_CHARGE, na.rm = TRUE)
+cardio_elective_mean
+
+cardio_emergent_charge <- subset(cardio, cardio$ADM_TYPE == "EMERGENT")
+cardio_emergent_mean = mean(cardio_emergent_charge$TOT_CHARGE, na.rm = TRUE)
+cardio_emergent_mean
+
+cardio%>%
+  group_by(ADM_TYPE, TOT_CHARGE)%>%
+  dplyr :: summarise(n= n())%>%
+ggplot( mapping = aes(x= ADM_TYPE , y = TOT_CHARGE ))+
+  geom_boxplot() +
+  labs(x = "Admission type for Cardio", y ="Total Charge")+
+  theme_bw()
+
+
+
+```
+
+
+
+```{r}
+
+
+#elective vs emergent charge  for cardio 
+
+ortho_elective_charge <- subset(ortho, ortho$ADM_TYPE == "ELECTIVE")
+ortho_elective_mean = mean(ortho_elective_charge$TOT_CHARGE, na.rm = TRUE)
+ortho_elective_mean
+
+
+ortho_emergent_charge <- subset(ortho, ortho$ADM_TYPE == "EMERGENT")
+ortho_emergent_mean = mean(ortho_emergent_charge$TOT_CHARGE, na.rm = TRUE)
+ortho_emergent_mean
+
+
+ortho%>%
+  group_by(ADM_TYPE, TOT_CHARGE)%>%
+  dplyr :: summarise(n= n())%>%
+ggplot( mapping = aes(x= ADM_TYPE , y =  TOT_CHARGE ))+
+  geom_boxplot()+
+  labs(x= "Admission type for Ortho ", y = "Total Charge") +
+  theme_bw()
+
+
+```
+# CARDIO PRIMARY PAY COMPARISION 
+
+```{r}
+
+#mean of cardio primary pay , medicare 
+cardio_pp1 <- subset(cardio, cardio$PRIM_PAY == "MEDICARE")
+cardio_pp1_mean = mean(cardio_pp1$TOT_PAY)
+cardio_pp1_mean
+
+
+#mean of cardio primary pay , medicaid
+cardio_pp2 <- subset(cardio, cardio$PRIM_PAY == "MEDICAID")
+cardio_pp2_mean = mean(cardio_pp2$TOT_PAY)
+cardio_pp2_mean
+
+#mean of cardio primary pay ,bluecross
+cardio_pp3 <- subset(cardio, cardio$PRIM_PAY == "BLUE_CROSS")
+cardio_pp3_mean = mean(cardio_pp3$TOT_PAY)
+cardio_pp3_mean 
+
+#mean of cardio primary pay , commercial 
+cardio_pp4 <- subset(cardio, cardio$PRIM_PAY == "COMMERCIAL")
+cardio_pp4_mean = mean(cardio_pp4$TOT_PAY)
+cardio_pp4_mean
+
+#mean of cardio primary pay , private 
+cardio_pp5 <- subset(cardio, cardio$PRIM_PAY == "PRIVATE")
+cardio_pp5_mean = mean(cardio_pp5$TOT_PAY)
+cardio_pp5_mean
+
+
+#mean of cardio primary pay , work_comp
+cardio_pp6 <- subset(cardio, cardio$PRIM_PAY == "WORK_COMP")
+cardio_pp6_mean = mean(cardio_pp6$TOT_PAY)
+cardio_pp6_mean
+
+cardio_prim_pay = read.csv("cardio_primary_pay.csv")
+
+view(cardio_prim_pay)
+
+cardio_prim_pay_graph = ggplot(data = cardio_prim_pay, mapping = aes(x = PRIM_PAY, y = count))+
+  geom_bar(stat = "identity")
+  
+cardio_prim_pay_graph
+
+
+cardio_primary_pay= data.frame( cardio_prim_pays = c("cardio_pp1_mean","cardio_pp2_mean","cardio_pp3_mean","cardio_pp4_mean","cardio_pp5_mean","cardio_pp6_mean"), Mean = c( "9544.501",
+"9807.505", "10898.8", "8937.233", " 8937.233","9248.733"))
+
+cardio_primary_pay
+
+cardio_primary_pay_graph = 
+  ggplot(data = cardio_primary_pay, mapping = aes(x = cardio_prim_pays, y = Mean ))+
+  geom_bar(stat = "identity") +
+  theme_bw()
+
+cardio_primary_pay_graph
+
+
+
+```
+
+# ORTHO PRIMARY PAY COMPARISION
+
+```{r}
+
+# Ortho primary pay mean  for different paytypes 
+
+ortho_pp1 <- subset(ortho, ortho$PRIM_PAY == "MEDICARE")
+ortho_pp1_mean = mean(ortho_pp1$TOT_PAY)
+ortho_pp1_mean
+
+ortho_pp2 <- subset(ortho, ortho$PRIM_PAY == "MEDICAID")
+ortho_pp2_mean = mean(ortho_pp2$TOT_PAY)
+ortho_pp2_mean
+
+ortho_pp3 <- subset(ortho, ortho$PRIM_PAY == "BLUECROSS")
+ortho_pp3_mean = mean(ortho_pp3$TOT_PAY)
+ortho_pp3_mean
+
+ortho_pp4 <- subset(ortho, ortho$PRIM_PAY == "COMMERCIAL")
+ortho_pp4_mean = mean(ortho_pp4$TOT_PAY)
+ortho_pp4_mean
+
+ortho_pp5 <- subset(ortho, ortho$PRIM_PAY == "PRIVATE")
+ortho_pp5_mean = mean(ortho_pp5$TOT_PAY)
+ortho_pp5_mean
+
+ortho_pp6 <- subset(ortho, ortho$PRIM_PAY == "WORK_COMP")
+ortho_pp6_mean = mean(ortho_pp6$TOT_PAY)
+ortho_pp6_mean
+
+# ortho data frame containing means of all paytypes
+
+ortho_primary_pay= data.frame( ortho_prim_pays = c("ortho_pp1_mean","ortho_pp2_mean","ortho_pp3_mean","ortho_pp4_mean","ortho_pp5_mean","ortho_pp6_mean"), Mean = c( "8538.264",
+"5626.414", "NaN", "8269.784", "5922.471","7471.796"))
+
+                 
+ortho_primary_pay
+
+# graph representing means of different primary pay typr of ortho services
+
+ortho_primary_pay_graph = 
+  ggplot(data = ortho_primary_pay, mapping = aes(x = ortho_prim_pays, y = Mean ))+
+  geom_bar(stat = "identity") +
+  theme_bw()
+
+
+ortho_primary_pay_graph
+
+
+# Ortho primary pay distribution of the different paytypes
+
+ortho_prim_pay = read.csv("ortho_pri_pay.csv")
+
+
+ortho_prim_pay_graph = ggplot(data = ortho_prim_pay, mapping = aes(x = PRIM_PAY, y = count))+
+  geom_bar(stat = "identity")
+
+
+ortho_prim_pay_graph
+
+
+```
+
+# Probable future demand given Omega's patient demographics for Cardiac and Orthopedic services
+
+```{r}
+
+omega_2000 %>%
+  group_by(AGE, SEX)%>%
+  ggplot(mapping = aes(x= SEX, y = AGE, color = SEX)) + 
+  geom_point(size=.5, position=position_jitter(width = .45))
+
+
+cardio %>%
+  group_by(AGE, SEX)%>%
+  ggplot(mapping = aes(x= SEX, y = AGE, color = SEX)) + 
+  geom_point(size=.5, position=position_jitter(width = .45))
+
+
+ortho %>%
+  group_by(AGE, SEX)%>%
+  ggplot(mapping = aes(x= SEX, y = AGE, color = SEX)) + 
+  geom_point(size=.5, position=position_jitter(width = .45))
+  
+
+```
+
+
+# death rates for intensity utilization figures
+
+```{r}
+
+death_rate1= data.frame( death_x_1 = c("C OR DR", "O OR DR"), Death_rate_1 = c( "0.0344", "0.068"))
+death_rate2= data.frame( death_x_2 = c("C PO DR", "O PO DR"), Death_rate_2 = c( "0.242", "0.068"))
+
+death_rate1
+death_rate2
+
+death_rate_graph_1 = 
+  ggplot(data = death_rate1, mapping = aes(x = death_x_1, y = Death_rate_1))+
+  geom_bar(stat = "identity") +
+  theme_bw()
+
+death_rate_graph_2 = 
+  ggplot(data = death_rate2, mapping = aes(x = death_x_2, y = Death_rate_2 ))+
+  geom_bar(stat = "identity") +
+  theme_bw()
+
+death_rate_graph_1
+
+death_rate_graph_2
+
+```
+
+#external review for intensity utilization figures
+
+```{r}
+
+ext_review1= data.frame( ext_review11 = c("ortho", "cardio"), e_review1 = c( "0.7", "0.2"))
+
+
+ext_review1
+
+
+ext_review_graph = 
+  ggplot(data = ext_review1, mapping = aes(x = ext_review11, y = e_review1 ))+
+  geom_bar(stat = "identity") +
+  theme_bw()
+
+
+ext_review_graph
+
+
+```
+```{r}
+
+mean_distance = data.frame(mean_distance1 = c("25.7","30.2"), departments= c("Ortho", "Cardio"))
+
+mean_distance_graph = 
+  ggplot(data = mean_distance, mapping = aes(x = departments  , y  = mean_distance1 ))+
+  geom_bar(stat = "identity") +
+  theme_bw()
+
+mean_distance_graph
+
+```
+
+
